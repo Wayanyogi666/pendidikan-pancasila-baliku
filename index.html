@@ -2,31 +2,36 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baliku</title>
-    <link rel="icon" type="image/x-icon" href="https://lh3.googleusercontent.com/d/19TNRds6ofL8omolE0436xCM_kjSw7MwN">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pendidikan Pancasila_Baliku</title>
+	<link rel="icon" type="image/x-icon" href="https://lh3.googleusercontent.com/d/19TNRds6ofL8omolE0436xCM_kjSw7MwN">
     <style>
         /* --- GAYA UMUM & RESET --- */
         * { box-sizing: border-box; }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0; padding: 0;
             background-color: #e0f7fa;
-            /* Pastikan file ini ada di folder */
             background-image: url('bg_utama.jpg'); 
             background-size: cover;
             background-position: center;
+            /* Menggunakan dvh agar pas di layar HP modern, fallback ke vh */
             height: 100vh;
+            height: 100dvh; 
             width: 100vw;
             display: flex; justify-content: center; align-items: center;
             overflow: hidden;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- CONTAINER UTAMA (RESPONSIF) --- */
+        /* --- CONTAINER UTAMA --- */
         #app-container {
             width: 95%; max-width: 1000px;
-            height: 90vh;
+            /* Tinggi fleksibel namun tetap menyisakan ruang tepi */
+            height: 95vh; 
+            height: 95dvh;
             background: rgba(255, 255, 255, 0.96);
             border: 4px solid #00acc1;
             border-radius: 15px;
@@ -40,271 +45,285 @@
         .slide {
             display: none;
             width: 100%; height: 100%;
-            padding: 20px;
+            padding: 15px;
             flex-direction: column;
-            align-items: center; justify-content: center; /* Default centering */
+            align-items: center; 
             text-align: center;
-            animation: fadeIn 0.5s ease-in;
-            overflow-y: auto; /* Scroll jika konten panjang */
+            animation: fadeIn 0.4s ease-in;
+            /* Aktifkan scroll vertikal jika konten mentok */
+            overflow-y: auto; 
+            overflow-x: hidden;
         }
         
-        /* Tambahan agar scroll aman (tidak terpotong atasnya) saat konten tinggi */
-        .slide.active {
-            display: flex; 
-        }
-        
-        /* Khusus slide yang isinya panjang agar tidak terpotong saat di-center */
-        .scroll-safe {
-            justify-content: flex-start; /* Mulai dari atas, bukan tengah */
-            padding-top: 40px; /* Beri jarak dari atas */
-            padding-bottom: 40px;
-        }
+        .slide.active { display: flex; }
 
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* --- TYPOGRAPHY --- */
-        h1 { color: #d84315; margin: 5px 0; font-size: clamp(1.5rem, 4vw, 2.5rem); }
-        h2 { color: #00838f; margin: 5px 0 15px 0; font-size: clamp(1.2rem, 3vw, 1.8rem); }
-        p, li { font-size: clamp(14px, 2vw, 18px); color: #333; }
+        /* --- TYPOGRAPHY (DIPERBAIKI: Tidak terlalu kecil) --- */
+        h1 { color: #d84315; margin: 5px 0; font-size: clamp(24px, 4vw, 36px); line-height: 1.2; }
+        h2 { color: #00838f; margin: 0 0 10px 0; font-size: clamp(18px, 3vw, 24px); }
+        p, li { font-size: 16px; color: #333; margin: 5px 0; line-height: 1.5; }
+        
+        /* Khusus layar kecil, font paragraf sedikit mengecil tapi tetap terbaca */
+        @media (max-width: 480px) {
+            p, li { font-size: 14px; }
+            h1 { font-size: 22px; }
+            h2 { font-size: 18px; }
+        }
+
+        /* Footer Tombol */
+        .slide-footer { 
+            margin-top: auto; 
+            padding-top: 10px; 
+            padding-bottom: 5px; 
+            width: 100%; 
+            display: flex; 
+            justify-content: center; 
+            gap: 10px; 
+            flex-wrap: wrap;
+            flex-shrink: 0; /* Agar footer tidak gepeng */
+        }
 
         /* --- TOMBOL --- */
         .btn-nav {
             background: #ff9800; color: white; border: none;
-            padding: 10px 25px; font-size: clamp(14px, 2vw, 18px);
-            border-radius: 25px; cursor: pointer; margin: 5px;
+            padding: 10px 20px; font-size: 16px;
+            border-radius: 25px; cursor: pointer; 
             font-weight: bold; box-shadow: 0 3px #e65100; transition: 0.2s;
+            white-space: nowrap;
         }
-        .btn-nav:hover { transform: scale(1.05); }
-        .btn-nav:active { transform: scale(0.95); }
+        .btn-nav:hover { transform: translateY(-2px); }
+        .btn-nav:active { transform: translateY(1px); }
         .btn-back { background: #546e7a; box-shadow: 0 3px #37474f; }
         
-        /* Input Nama */
         #input-nama {
-            padding: 10px; font-size: 18px; border-radius: 10px;
-            border: 2px solid #00acc1; margin: 15px 0; width: 80%; max-width: 300px;
+            padding: 10px; font-size: 16px; border-radius: 10px;
+            border: 2px solid #00acc1; margin: 10px 0; width: 80%; max-width: 300px;
             text-align: center;
         }
 
         /* --- MAP CONTAINER --- */
         .map-container {
-            width: 80%; height: 40vh;
-            border: 2px dashed #bbb; margin: 10px auto;
+            width: 100%; 
+            flex: 1; /* Isi ruang kosong */
+            min-height: 150px; 
+            border: 2px dashed #bbb; margin: 5px auto;
             display: flex; justify-content: center; align-items: center;
             background: #fff; border-radius: 10px;
+            position: relative;
         }
-        .map-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .map-img { 
+            width: 100%; height: 100%; 
+            object-fit: contain; 
+            max-height: 50vh; 
+        }
 
         /* --- EXPLORER (SLIDE 3) --- */
         .explorer-layout {
-            display: flex; width: 100%; height: 60vh; gap: 15px; text-align: left;
+            display: flex; width: 100%; 
+            flex: 1; 
+            gap: 10px; text-align: left;
+            min-height: 0;
+            overflow: hidden; /* Container utama tidak scroll, anaknya yang scroll */
         }
         .explorer-menu {
             width: 30%; display: flex; flex-direction: column; gap: 5px;
-            overflow-y: auto; padding-right: 5px;
+            overflow-y: auto; padding-right: 5px; height: 100%;
         }
         .explorer-content {
             width: 70%; border: 2px solid #00acc1; border-radius: 10px;
             padding: 10px; background: #fff;
-            display: flex; flex-direction: column; align-items: center; overflow-y: auto;
+            display: flex; flex-direction: column; align-items: center; 
+            overflow-y: auto; height: 100%;
         }
         .btn-region {
             background: #4dd0e1; border: none; padding: 10px; border-radius: 5px;
-            cursor: pointer; text-align: left; font-size: clamp(12px, 1.5vw, 16px);
+            cursor: pointer; text-align: left; font-size: 14px;
             transition: 0.2s; color: #004d40; font-weight: bold;
+            width: 100%;
         }
         .btn-region:hover, .btn-region.active-btn { background: #0097a7; color: white; }
         
-        #region-image-container {
-            width: 140px; height: 140px; margin: 10px;
-            display: flex; justify-content: center; align-items: center;
-            border: 1px solid #eee; border-radius: 10px; padding: 5px;
-        }
-        #region-image-container img {
-            max-width: 100%; max-height: 100%; object-fit: contain;
-            animation: popIn 0.3s;
+        .info-panel {
+            display: flex; width: 100%; align-items: center; 
+            flex-direction: row; justify-content: space-around; 
+            margin-top: 10px;
         }
 
-        /* --- GAME MEMORY (SLIDE 4) --- */
-        #slide-4 {
-            justify-content: space-between; /* Tombol tetap di bawah */
-            padding-bottom: 15px;
-        }
-
+        /* --- GAME MEMORY (DIPERBAIKI) --- */
         .game-board {
             display: grid; 
-            gap: 6px; /* Jarak antar kartu dirapatkan */
+            gap: 5px;
             margin: 5px auto; 
-            width: 98%; 
+            width: 100%; 
             max-width: 800px;
-            
-            /* Logic Flex agar menyesuaikan tinggi layar */
             flex: 1; 
-            min-height: 0; 
-            /* overflow-y: auto;  Kita matikan scroll jika memungkinkan */
-            padding: 2px;
-            align-content: center; /* Kartu di tengah vertikal */
-
-            /* Desktop: 6 kolom x 3 baris = 18 kartu (Sangat Pas) */
+            align-content: center; 
             grid-template-columns: repeat(6, 1fr); 
+            min-height: 0; 
+            overflow-y: auto;
+            padding: 2px;
         }
 
         .card {
             background-color: #fff; border: 2px solid #00838f; aspect-ratio: 1;
-            border-radius: 6px; display: flex; justify-content: center; align-items: center;
-            cursor: pointer; position: relative; transition: transform 0.2s;
-            /* Batasi tinggi kartu agar tidak mendorong tombol keluar */
-            max-height: 14vh; 
+            border-radius: 8px; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; position: relative; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            /* PERBAIKAN: Hapus transisi transform agar tidak pusing */
+            transition: background-color 0.2s;
         }
-        .card.flipped { background-color: #ffe0b2; cursor: default; }
-        .card.matched { background-color: #c8e6c9; border-color: #2e7d32; }
         
-        /* Font kartu lebih kecil dan responsif */
+        /* Font kartu diperbesar sedikit agar terbaca */
         .card-content { 
-            font-size: clamp(9px, 1.2vw, 14px); 
-            font-weight: bold; 
-            text-align: center; 
-            display: none; 
-            padding: 2px; 
-            word-break: break-word; 
-            line-height: 1.1;
+            font-size: clamp(10px, 2.5vmin, 14px); 
+            font-weight: bold; text-align: center; display: none; padding: 2px; line-height: 1.1; 
+            word-break: break-word;
         }
+        
+        /* PERBAIKAN: Hapus rotateY(180deg) penyebab tulisan terbalik */
+        .card.flipped { background-color: #ffe0b2; cursor: default; }
+        .card.matched { background-color: #c8e6c9; border-color: #2e7d32; opacity: 0.8; }
         
         .card.flipped .card-content, .card.matched .card-content { display: block; }
-        .card::before { content: "?"; font-size: clamp(16px, 3vw, 24px); color: #00acc1; position: absolute; }
+        .card::before { content: "?"; font-size: 24px; color: #00acc1; position: absolute; }
         .card.flipped::before, .card.matched::before { display: none; }
 
-        /* --- EVALUASI QUIZ (SLIDE 5) --- */
-        .quiz-container { width: 90%; max-width: 700px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .question-text { font-size: 20px; font-weight: bold; margin-bottom: 20px; color: #d84315; }
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        /* --- EVALUASI QUIZ --- */
+        .quiz-container { 
+            width: 100%; max-width: 600px; 
+            background: #fff; padding: 15px; border-radius: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            display: flex; flex-direction: column;
+            flex: 1; 
+            overflow-y: auto;
+        }
+        .question-text { font-size: 18px; font-weight: bold; margin: 10px 0; color: #d84315; flex-grow: 1; display:flex; align-items:center; justify-content:center; text-align: center;}
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto;}
         .btn-option {
-            background: #e0f7fa; border: 2px solid #00acc1; padding: 15px;
-            border-radius: 10px; cursor: pointer; font-size: 16px; transition: 0.2s;
+            background: #e0f7fa; border: 2px solid #00acc1; padding: 12px;
+            border-radius: 10px; cursor: pointer; font-size: 16px;
+            transition: 0.2s; min-height: 50px; display: flex; align-items: center; justify-content: center;
         }
         .btn-option:hover { background: #b2ebf2; }
         .btn-option.correct { background: #a5d6a7; border-color: #2e7d32; }
         .btn-option.wrong { background: #ef9a9a; border-color: #c62828; }
 
-        /* --- SERTIFIKAT (SLIDE 6) --- */
-        /* PERBAIKAN: Menggunakan ukuran relatif & clamp agar fleksibel */
+        /* --- SERTIFIKAT --- */
         .certificate {
-            width: 95%; 
-            max-width: 700px; 
-            padding: 20px;
-            background: #fff8e1; 
-            border: 8px double #d84315;
-            position: relative; 
+            width: 95%; max-width: 600px; padding: 20px;
+            background: #fff8e1; border: 6px double #d84315;
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            margin: auto; /* Penting agar tidak terpotong saat scroll */
-            flex-shrink: 0; /* Agar tidak gepeng */
+            margin: 10px auto; 
+            flex-shrink: 0;
         }
-        
-        .cert-title { 
-            font-family: 'Georgia', serif; 
-            font-size: clamp(18px, 4vw, 36px); /* Font menyesuaikan layar */
-            color: #d84315; 
-            margin-bottom: 15px; 
-            border-bottom: 2px solid #d84315; 
-            display: inline-block; 
-        }
-        .cert-name { 
-            font-size: clamp(20px, 5vw, 32px); /* Font menyesuaikan layar */
-            font-weight: bold; 
-            color: #000; 
-            margin: 15px 0; 
-            text-transform: uppercase; 
-            word-wrap: break-word; /* Mencegah nama panjang keluar */
-        }
-        .cert-score { 
-            font-size: clamp(30px, 8vw, 48px); /* Font menyesuaikan layar */
-            font-weight: bold; 
-            color: #00838f; 
-            margin: 10px 0; 
-        }
-        .cert-msg { 
-            font-style: italic; 
-            color: #555; 
-            font-size: clamp(14px, 3vw, 18px);
-        }
+        .cert-title { font-family: 'Georgia', serif; font-size: 24px; color: #d84315; border-bottom: 2px solid #d84315; display: inline-block; margin-bottom: 10px;}
+        .cert-name { font-size: 28px; font-weight: bold; color: #000; margin: 10px 0; text-transform: uppercase; word-wrap: break-word;}
+        .cert-score { font-size: 40px; font-weight: bold; color: #00838f; margin: 5px 0; }
+        .cert-msg { font-style: italic; color: #555; font-size: 16px;}
 
-        /* --- RESPONSIVE MOBILE --- */
-        @media (max-width: 768px) {
-            .explorer-layout { flex-direction: column-reverse; height: 60vh; }
-            .explorer-menu { width: 100%; height: 35%; display: grid; grid-template-columns: 1fr 1fr; }
-            .explorer-content { width: 100%; height: 65%; }
-            #region-image-container { width: 100px; height: 100px; }
-            
-            /* Game Board Mobile: Gunakan 5 kolom agar muat 4 baris (hemat tempat) */
-            .game-board { grid-template-columns: repeat(5, 1fr); gap: 4px; } 
-            
-            .options-grid { grid-template-columns: 1fr; } /* Quiz jadi 1 kolom di HP */
-            .certificate { padding: 15px; border-width: 5px; }
-        }
-
-        /* Kontrol Musik */
-        #music-control {
-            position: absolute; top: 10px; right: 10px;
+        /* --- KONTROL TAMBAHAN --- */
+        #music-control, #dev-btn {
+            position: absolute; top: 10px; 
             background: #fff; border-radius: 50%; width: 40px; height: 40px;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 20px; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
+        #music-control { right: 10px; }
+        #dev-btn { left: 10px; }
 
-        /* Tombol Pengembang (Baru) */
-        #dev-btn {
-            position: absolute; top: 10px; left: 10px;
-            background: #fff; border-radius: 50%; width: 40px; height: 40px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 20px; z-index: 100; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
+        /* --- RESPONSIVE LOGIC --- */
+
+        /* 1. HP Portrait (Layar Sempit) */
+        @media (max-width: 600px) {
+            .explorer-layout { flex-direction: column-reverse; }
+            .explorer-menu { width: 100%; height: 40%; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; min-height: 100px;}
+            .explorer-content { width: 100%; height: 60%; }
+            .info-panel { flex-direction: row; } 
+            
+            /* Gunakan 4 kolom agar tidak terlalu sempit */
+            .game-board { grid-template-columns: repeat(4, 1fr); gap: 4px; align-content: start; } 
+            .options-grid { grid-template-columns: 1fr; } 
+            .btn-option { padding: 10px; font-size: 14px; }
         }
-        #dev-btn:hover { transform: scale(1.1); }
+
+        /* 2. HP Landscape (Layar Pendek) */
+        @media (max-height: 500px) and (orientation: landscape) {
+            h1 { font-size: 20px; display: inline-block; margin-right: 10px; }
+            h2 { font-size: 16px; display: inline-block; }
+            
+            #app-container { height: 98dvh; padding: 5px; }
+            .slide { padding: 5px; }
+
+            /* Map Slide Landscape */
+            .map-container { flex: 1; height: auto; min-height: 0; margin: 2px auto;}
+            .map-img { max-height: 100%; width: auto; }
+
+            /* Explorer Landscape: Layout Kiri-Kanan */
+            .explorer-layout { flex-direction: row; height: 65vh; }
+            .explorer-menu { width: 30%; height: 100%; display: flex; flex-direction: column; }
+            .explorer-content { width: 70%; height: 100%; }
+
+            /* Game Landscape: Perbanyak kolom agar muat vertikal */
+            .game-board { 
+                grid-template-columns: repeat(9, 1fr); 
+                max-width: 95%;
+                gap: 3px;
+                align-content: center;
+            }
+            .card { border-width: 1px; border-radius: 4px; }
+            .card-content { font-size: 10px; } /* Paksa font kecil di landscape pendek */
+            
+            /* Quiz Landscape */
+            .quiz-container { padding: 5px; flex-direction: row; gap: 10px; align-items: center;}
+            .question-text { font-size: 14px; width: 40%; text-align: left; margin: 0;}
+            .options-grid { width: 60%; grid-template-columns: 1fr 1fr; gap: 5px; }
+            .btn-option { padding: 5px; font-size: 12px; min-height: 30px; }
+            
+            #slide-1 img { width: 50px; }
+            .slide-footer { padding: 2px; }
+        }
 
     </style>
 </head>
 <body>
 
-<!-- Audio Background -->
 <audio id="bg-music" loop>
     <source src="musik1.mp3" type="audio/mpeg">
 </audio>
 
 <div id="app-container">
     
-    <!-- Tombol Musik (Kanan Atas) -->
     <div id="music-control" onclick="toggleMusic()">🔇</div>
+    <div id="dev-btn" onclick="pindahSlide('dev')" title="Profil">👨‍💻</div>
 
-    <!-- Tombol Pengembang (Kiri Atas) - BARU -->
-    <div id="dev-btn" onclick="pindahSlide('dev')" title="Profil Pengembang">👨‍💻</div>
-
-    <!-- SLIDE 1: INTRO & INPUT NAMA -->
     <div id="slide-1" class="slide active">
-        <img src="ikon_garuda.png" alt="Garuda" width="100" style="margin-bottom:10px;">
-        <h1>Pendidikan Pancasila</h1>
-        <h2>Mengenal Wilayahku: Bali & NKRI</h2>
-        
-        <div style="background: white; padding: 20px; border-radius: 15px; margin-top:10px; width: 90%; max-width:400px;">
-            <p style="margin-bottom: 0px;">Tulis namamu dulu ya!<br>Ada sertifikat belajar untuk kamu.</p>
-            <input type="text" id="input-nama" placeholder="Ketik namamu di sini...">
-            <br>
-            <button class="btn-nav" onclick="mulaiAplikasi()">Masuk Kelas ▶</button>
+        <div style="flex: 1; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%;">
+            <img src="ikon_garuda.png" alt="Garuda" width="100" style="max-height: 20vh; object-fit: contain; margin-bottom: 10px;">
+            <h1>Pendidikan Pancasila</h1>
+            <h2>Mengenal Wilayahku: Bali & NKRI</h2>
+            
+            <div style="background: white; padding: 15px; border-radius: 15px; margin-top:10px; width: 90%; max-width:400px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <p style="margin-bottom: 5px;">Tulis namamu dulu ya!<br>Ada sertifikat belajar untuk kamu.</p>
+                <input type="text" id="input-nama" placeholder="Ketik namamu di sini..." autocomplete="off">
+                <br>
+                <button class="btn-nav" onclick="mulaiAplikasi()">Masuk Kelas ▶</button>
+            </div>
         </div>
     </div>
 
-    <!-- SLIDE 2: PETA INDONESIA -->
     <div id="slide-2" class="slide">
         <h2>Posisi Bali dalam NKRI</h2>
-        <p>Lihatlah peta Indonesia. Bali adalah bagian penting dari NKRI.</p>
         <div class="map-container">
             <img src="peta_indonesia.png" alt="Peta Indonesia" class="map-img">
         </div>
-        <p>Provinsi Bali terletak di antara Pulau Jawa dan Pulau Lombok.</p>
-        <div style="margin-top:auto;">
+        <p>Bali terletak di antara Pulau Jawa dan Lombok.</p>
+        
+        <div class="slide-footer">
             <button class="btn-nav" onclick="pindahSlide(3)">Jelajah Bali ▶</button>
         </div>
     </div>
 
-    <!-- SLIDE 3: EKSPLORASI BALI -->
     <div id="slide-3" class="slide">
         <h2>Peta Wilayah Provinsi Bali</h2>
         <div class="explorer-layout">
@@ -321,83 +340,80 @@
             </div>
 
             <div class="explorer-content">
-                <img src="peta_bali.png" alt="Peta Bali" style="height:30%; width:auto; margin-bottom:10px; object-fit:contain;">
-                <hr style="width:100%; border:1px dashed #ccc;">
+                <div style="flex:1; display:flex; align-items:center; justify-content:center; width:100%; min-height:0;">
+                    <img src="peta_bali.png" alt="Peta Bali" style="max-width:100%; max-height:100%; object-fit:contain;">
+                </div>
                 
-                <div style="display:flex; width:100%; align-items:center; flex-direction: row; justify-content: space-around;">
-                    <div id="region-image-container">
-                        <img id="dynamic-img" src="" style="display:none;" alt="Ikon Daerah"> 
-                        <span id="placeholder-text" style="color:#aaa; font-size:12px; text-align:center;">Klik tombol daerah</span>
+                <hr style="width:100%; border:1px dashed #ccc; margin: 5px 0;">
+
+                <div class="info-panel">
+                    <div style="width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; border: 1px solid #eee; border-radius: 10px; padding: 5px; flex-shrink:0;">
+                        <img id="dynamic-img" src="" style="display:none; max-width:100%; max-height:100%;" alt="Ikon"> 
+                        <span id="placeholder-text" style="color:#aaa; font-size:10px; text-align:center;">Klik tombol daerah</span>
                     </div>
-                    <div style="width:60%; text-align:left;">
-                        <h3 id="info-nama" style="margin:0; color:#00838f;">...</h3>
-                        <p id="info-desc" style="font-size:clamp(12px, 2vw, 15px);">Pilih nama daerah untuk melihat detail.</p>
+                    <div style="flex:1; text-align:left; padding-left: 10px;">
+                        <h3 id="info-nama" style="margin:0; color:#00838f; font-size:18px;">...</h3>
+                        <p id="info-desc" style="font-size:14px; line-height:1.2; margin-top:3px;">Pilih nama daerah untuk melihat detail.</p>
                     </div>
                 </div>
             </div>
         </div>
-        <div style="margin-top:auto; padding-top:10px;">
+        <div class="slide-footer">
             <button class="btn-nav btn-back" onclick="pindahSlide(2)">◀ Peta NKRI</button>
             <button class="btn-nav" onclick="setupGame(); pindahSlide(4)">Main Game ▶</button>
         </div>
     </div>
 
-    <!-- SLIDE 4: GAME MEMORY -->
     <div id="slide-4" class="slide">
         <h2>Game: Ibukotanya mana???</h2>
-        <p style="margin:0;">Cocokkan <strong>Nama Daerah</strong> dengan <strong>Ibukotanya</strong>!</p>
         <div id="game-board" class="game-board"></div>
-        <p id="game-status" style="font-weight:bold; color:#d84315; margin-top:5px; height:20px;"></p>
-        <div style="margin-top:auto;">
+        <p id="game-status" style="font-weight:bold; color:#d84315; min-height:20px; margin:2px; font-size:16px;"></p>
+        
+        <div class="slide-footer">
             <button class="btn-nav btn-back" onclick="pindahSlide(3)">◀ Materi</button>
-            <!-- Tombol Lanjut Evaluasi disembunyikan di awal (display: none) -->
             <button id="btn-evaluasi" class="btn-nav" onclick="startQuiz(); pindahSlide(5)" style="display:none;">Lanjut Evaluasi ▶</button>
         </div>
     </div>
 
-    <!-- SLIDE 5: EVALUASI (20 SOAL) -->
     <div id="slide-5" class="slide">
         <h2>Evaluasi Pengetahuan</h2>
         <div class="quiz-container">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span id="q-number" style="font-weight:bold; color:#00838f;">Soal 1/20</span>
-                <span id="q-score" style="color:#d84315;">Skor: 0</span>
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                <span id="q-number" style="font-weight:bold; color:#00838f; font-size:14px;">Soal 1/20</span>
+                <span id="q-score" style="color:#d84315; font-size:14px;">Skor: 0</span>
             </div>
-            <p id="q-text" class="question-text">Pertanyaan akan muncul di sini...</p>
-            <div id="options-container" class="options-grid">
-                <!-- Tombol Opsi digenerate JS -->
-            </div>
+            <div id="q-text" class="question-text">Loading...</div>
+            <div id="options-container" class="options-grid"></div>
         </div>
     </div>
 
-    <!-- SLIDE 6: SERTIFIKAT -->
-    <!-- PERBAIKAN: Menambahkan class scroll-safe agar aman saat tinggi -->
-    <div id="slide-6" class="slide scroll-safe">
-        <div class="certificate">
-            <div class="cert-title">SERTIFIKAT HASIL BELAJAR</div>
-            <p>Diberikan kepada siswa hebat:</p>
-            <div class="cert-name" id="final-name">NAMA SISWA</div>
-            <p>Telah menyelesaikan materi "Mengenal Wilayahku: Bali"</p>
-            <p>Dengan Nilai Akhir:</p>
-            <div class="cert-score" id="final-score">100</div>
-            <p class="cert-msg" id="final-msg">Luar Biasa!</p>
+    <div id="slide-6" class="slide">
+        <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%;">
+            <div class="certificate">
+                <div class="cert-title">SERTIFIKAT HASIL BELAJAR</div>
+                <p>Diberikan kepada siswa hebat:</p>
+                <div class="cert-name" id="final-name">NAMA SISWA</div>
+                <p>Telah menyelesaikan materi "Mengenal Wilayahku: Bali"</p>
+                <p>Dengan Nilai Akhir:</p>
+                <div class="cert-score" id="final-score">0</div>
+                <p class="cert-msg" id="final-msg">Semangat!</p>
+            </div>
         </div>
-        <div style="margin-top:20px;">
+        <div class="slide-footer">
             <button class="btn-nav" onclick="location.reload()">Ulangi dari Awal ↺</button>
         </div>
     </div>
 
-    <!-- SLIDE DEV: PROFIL PENGEMBANG (BARU) -->
     <div id="slide-dev" class="slide">
         <h2>Profil Pengembang</h2>
-        <!-- Kontainer fleksibel untuk gambar agar responsif -->
-        <div style="flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; padding: 10px;">
+        <div style="flex: 1; display: flex; align-items: center; justify-content: center; width:100%;">
             <img src="pengembang.png" alt="Foto Pengembang" 
-                 style="max-width: 100%; max-height: 50vh; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 2px solid #00acc1;">
+                 style="max-width: 80%; max-height: 50vh; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); border: 2px solid #00acc1;">
         </div>
-        
-        <div style="margin-top: 20px;">
-            <p>"Bukan programmer profesional, cuma guru yang lagi cosplay jadi anak IT biar murid nggak bosen.</p>
+        <div style="margin-top: 10px;">
+            <p>"Bukan programmer profesional, hanya guru yang lagi cosplay jadi anak IT biar murid nggak bosen".</p>
+        </div>
+        <div class="slide-footer">
             <button class="btn-nav btn-back" onclick="pindahSlide(1)">◀ Kembali ke Menu</button>
         </div>
     </div>
@@ -405,12 +421,11 @@
 </div>
 
 <script>
-    // --- VARIABEL GLOBAL ---
+    // --- VARIABEL & DATA ---
     let namaSiswa = "Siswa";
     let skorKuis = 0;
     let currentQIndex = 0;
 
-    // --- DATA WILAYAH BALI ---
     const dataBali = {
         'Denpasar': { ibukota: 'Denpasar', desc: 'Ibukota Provinsi. Pusat pemerintahan & ekonomi.' },
         'Badung': { ibukota: 'Mangupura', desc: 'Pusat pariwisata (Kuta, Nusa Dua) & Bandara.' },
@@ -423,98 +438,68 @@
         'Karangasem': { ibukota: 'Amlapura', desc: 'Ujung timur Bali, Pura Besakih, Gunung Agung.' }
     };
 
-    // --- AUDIO & INTRO ---
     const bgMusic = document.getElementById('bg-music');
     let isMusicPlaying = false;
 
+    // --- FUNGSI UTAMA ---
     function mulaiAplikasi() {
         const input = document.getElementById('input-nama').value;
-        if(input.trim() === "") {
-            alert("Silakan isi namamu dulu ya!");
-            return;
-        }
+        if(input.trim() === "") { alert("Silakan isi namamu dulu ya!"); return; }
         namaSiswa = input;
         
-        // Play Audio
         bgMusic.volume = 0.3;
         bgMusic.play().then(() => {
-            isMusicPlaying = true;
-            document.getElementById('music-control').innerText = "🔊";
-        }).catch(() => { console.log("Audio autoplay blocked"); });
+            isMusicPlaying = true; document.getElementById('music-control').innerText = "🔊";
+        }).catch(() => console.log("Audio autoplay butuh interaksi"));
 
         pindahSlide(2);
     }
 
     function toggleMusic() {
-        if (isMusicPlaying) {
-            bgMusic.pause(); document.getElementById('music-control').innerText = "🔇";
-        } else {
-            bgMusic.play(); document.getElementById('music-control').innerText = "🔊";
-        }
+        if (isMusicPlaying) { bgMusic.pause(); document.getElementById('music-control').innerText = "🔇"; } 
+        else { bgMusic.play(); document.getElementById('music-control').innerText = "🔊"; }
         isMusicPlaying = !isMusicPlaying;
     }
 
-    function pindahSlide(no) {
+    function pindahSlide(id) {
         document.querySelectorAll('.slide').forEach(el => el.classList.remove('active'));
-        // Support pindah ke slide string ('dev') atau angka
-        const targetId = (typeof no === 'string') ? 'slide-' + no : 'slide-' + no;
-        document.getElementById(targetId).classList.add('active');
+        const target = typeof id === 'string' ? 'slide-' + id : 'slide-' + id;
+        document.getElementById(target).classList.add('active');
     }
 
-    // --- EXPLORER LOGIC (REVISI: AUTO FALLBACK & STABLE LOADING) ---
+    // --- EXPLORER LOGIC ---
     function tampilInfo(key, btnElement) {
         document.querySelectorAll('.btn-region').forEach(b => b.classList.remove('active-btn'));
         btnElement.classList.add('active-btn');
 
         const data = dataBali[key];
-        document.getElementById('info-nama').innerText = (key === 'Denpasar') ? 'Kota Denpasar' : 'Kab. ' + key;
+        document.getElementById('info-nama').innerText = (key === 'Denpasar' ? 'Kota ' : 'Kab. ') + key;
         document.getElementById('info-desc').innerText = data.desc;
 
         const imgEl = document.getElementById('dynamic-img');
-        const placeholder = document.getElementById('placeholder-text');
-
-        // Reset Tampilan
-        imgEl.style.display = 'none';
-        placeholder.style.display = 'block';
-        placeholder.innerText = "Mencari gambar...";
-
-        // Nama file dasar (contoh: ikondenpasar)
+        const ph = document.getElementById('placeholder-text');
+        
+        imgEl.style.display = 'none'; ph.style.display = 'block'; ph.innerText = "Mencari gambar...";
+        
         const baseName = 'ikon' + key.toLowerCase();
-
-        // 1. Definisikan handler Error & Success SEBELUM set src
-        imgEl.onload = function() {
-            this.style.display = 'block';
-            placeholder.style.display = 'none';
+        
+        imgEl.onload = function() { this.style.display = 'block'; ph.style.display = 'none'; };
+        imgEl.onerror = function() { 
+            if(this.src.endsWith('.png')) this.src = baseName + '.jpg';
+            else { this.style.display='none'; ph.style.display='block'; ph.innerText = "Gagal memuat"; }
         };
-
-        imgEl.onerror = function() {
-            // Jika PNG gagal, cek apakah kita sudah mencoba JPG?
-            if (this.src.endsWith('.png')) {
-                console.log("PNG gagal, mencoba JPG...");
-                this.src = baseName + '.jpg'; // Coba JPG
-            } else {
-                // Jika JPG juga gagal, menyerah
-                this.style.display = 'none';
-                placeholder.style.display = 'block';
-                placeholder.innerText = "Gagal memuat:\n" + baseName + ".png / .jpg";
-            }
-        };
-
-        // 2. Mulai proses dengan mencoba PNG dulu
         imgEl.src = baseName + '.png';
     }
 
-    // --- GAME MEMORY ---
+    // --- GAME LOGIC (FIXED) ---
     let kartuTerbuka = [], kartuCocok = 0;
+    
     function setupGame() {
         const board = document.getElementById('game-board');
         board.innerHTML = '';
         kartuTerbuka = []; kartuCocok = 0;
         document.getElementById('game-status').innerText = "";
-        
-        // --- LOGIKA BARU: Sembunyikan tombol evaluasi saat game dimulai ---
-        const btnEval = document.getElementById('btn-evaluasi');
-        if(btnEval) btnEval.style.display = 'none';
+        document.getElementById('btn-evaluasi').style.display = 'none';
         
         let deck = [];
         Object.keys(dataBali).forEach(kab => {
@@ -547,7 +532,6 @@
             kartuCocok++;
             if (kartuCocok === 9) {
                 document.getElementById('game-status').innerText = "HEBAT! Semua Benar!";
-                // --- LOGIKA BARU: Munculkan tombol evaluasi saat MENANG ---
                 document.getElementById('btn-evaluasi').style.display = 'inline-block';
             }
         } else {
@@ -556,7 +540,7 @@
         kartuTerbuka = [];
     }
 
-    // --- EVALUASI 20 SOAL ---
+    // --- QUIZ LOGIC (20 Soal) ---
     const soalKuis = [
         { q: "Apa nama ibukota Provinsi Bali?", opt: ["Gianyar", "Denpasar", "Singaraja", "Badung"], ans: 1 },
         { q: "Provinsi Bali adalah bagian dari negara...", opt: ["Malaysia", "Singapura", "NKRI", "Australia"], ans: 2 },
@@ -581,16 +565,11 @@
     ];
 
     function startQuiz() {
-        skorKuis = 0;
-        currentQIndex = 0;
-        renderQuestion();
+        skorKuis = 0; currentQIndex = 0; renderQuestion();
     }
 
     function renderQuestion() {
-        if (currentQIndex >= soalKuis.length) {
-            tampilkanSertifikat();
-            return;
-        }
+        if (currentQIndex >= soalKuis.length) { tampilkanSertifikat(); return; }
         
         const q = soalKuis[currentQIndex];
         document.getElementById('q-number').innerText = `Soal ${currentQIndex + 1}/${soalKuis.length}`;
@@ -609,26 +588,17 @@
         });
     }
 
-    function cekJawaban(pilihanUser, btnEl) {
-        // Cegah klik ganda
-        const allBtn = document.querySelectorAll('.btn-option');
-        allBtn.forEach(b => b.disabled = true);
-
-        const jawabanBenar = soalKuis[currentQIndex].ans;
+    function cekJawaban(idx, btn) {
+        document.querySelectorAll('.btn-option').forEach(b => b.disabled = true);
+        const correct = soalKuis[currentQIndex].ans;
         
-        if (pilihanUser === jawabanBenar) {
-            btnEl.classList.add('correct');
-            skorKuis += 5; // 20 soal x 5 = 100
+        if (idx === correct) {
+            btn.classList.add('correct'); skorKuis += 5;
         } else {
-            btnEl.classList.add('wrong');
-            // Tunjukkan jawaban yang benar
-            allBtn[jawabanBenar].classList.add('correct');
+            btn.classList.add('wrong');
+            document.getElementsByClassName('btn-option')[correct].classList.add('correct');
         }
-
-        setTimeout(() => {
-            currentQIndex++;
-            renderQuestion();
-        }, 1000);
+        setTimeout(() => { currentQIndex++; renderQuestion(); }, 1000);
     }
 
     function tampilkanSertifikat() {
@@ -641,10 +611,7 @@
         else if(skorKuis >= 60) msgEl.innerText = "Bagus! Terus tingkatkan belajarmu.";
         else msgEl.innerText = "Tetap Semangat! Ayo pelajari materi lagi.";
     }
-
 </script>
 
 </body>
-
 </html>
-
